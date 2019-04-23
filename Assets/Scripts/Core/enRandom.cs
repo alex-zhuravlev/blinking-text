@@ -7,6 +7,11 @@
             return s_oRandom.Next();
         }
 
+        public static double GetF()
+        {
+            return s_oRandom.NextDouble();
+        }
+
         public static int Get(int iMaxValue)
         {
             return s_oRandom.Next(iMaxValue);

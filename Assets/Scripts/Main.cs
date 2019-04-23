@@ -76,6 +76,40 @@ public class Main : MonoBehaviour
 
         StartCoroutine(BlinkLogic());
         // TestCoordsGrid();
+
+        /*int[] arr = new int[10];
+        int[] narr = new int[10];
+
+        for (int i = 0; i < 100000; i++)
+        {
+            double d = BoxMullerRange(0, 5);
+            if (d >= 0)
+            {
+                arr[(int)d]++;
+            }
+            else
+            {
+                narr[(int)Math.Abs(d)]++;
+            }
+        }*/
+    }
+
+    private double BoxMullerRange(double fMin, double fMax)
+    {
+        double fMean = (fMin + fMax) / 2.0;
+        double fDev = (fMax - fMean) / 9.0;
+
+        return BoxMuller(fMean, fDev);
+    }
+
+    private double BoxMuller(double fMean, double fDev)
+    {
+        double u1 = 1.0 - enRandom.GetF(); // uniform(0,1] random doubles
+        double u2 = 1.0 - enRandom.GetF();
+        double fRandStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+        double randNormal = fMean + fDev * fRandStdNormal; //random normal(mean,stdDev^2)
+
+        return randNormal;
     }
 
     private void TestCoordsGrid()
@@ -84,7 +118,7 @@ public class Main : MonoBehaviour
         {
             for (int y = 0; y < MAX_Y_N; y++)
             {
-                GameObject goText = m_oTextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x + 1, y + 1)));
+                m_oTextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x + 1, y + 1)));
             }
         }
     }
@@ -142,10 +176,13 @@ public class Main : MonoBehaviour
 
     private Vector2Int GetRandomPosition()
     {
-        for (int i = 0; i < MAX_X_N * MAX_Y_N; i++)
+        for (int i = 0; i < 10000; i++)
         {
-            int iRandX = enRandom.Get(MAX_X_N) + 1;
-            int iRandY = enRandom.Get(MAX_Y_N) + 1;
+            double fX = BoxMullerRange(0, MAX_X_N);
+            double fY = BoxMullerRange(0, MAX_Y_N);
+
+            int iRandX = (int)Math.Round(Math.Min(MAX_X_N, Math.Abs(fX))) + 1;
+            int iRandY = (int)Math.Round(Math.Min(MAX_Y_N, Math.Abs(fY))) + 1;
 
             Vector2Int p2 = new Vector2Int(iRandX, iRandY);
             if (!m_aTextMatrix.ContainsKey(p2))
