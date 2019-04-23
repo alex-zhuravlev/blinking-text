@@ -2,3 +2,7 @@
 Library/
 
 UnityPackageManager/
+
+Temp/
+
+.vs/

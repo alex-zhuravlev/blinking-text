@@ -27,10 +27,12 @@ public class TextManager
         oText.text = sText;
         oText.color = new Color(255.0f, 215.0f, 0.0f);
         oText.fontSize = 48;
+        oText.alignment = TextAnchor.MiddleCenter;
 
         RectTransform oRectTransform = oText.GetComponent<RectTransform>();
         oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         oRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        oRectTransform.sizeDelta = new Vector2(500, 100);
         oRectTransform.localPosition = p3Position;
 
         return goText;
