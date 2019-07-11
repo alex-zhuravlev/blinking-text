@@ -26,7 +26,7 @@ public class TextManager
         oText.font = (Font)Resources.Load("Fonts/seguisym");
         oText.text = sText;
         oText.color = new Color(255.0f, 215.0f, 0.0f);
-        oText.fontSize = 48;
+        oText.fontSize = 72;
         oText.alignment = TextAnchor.MiddleCenter;
 
         RectTransform oRectTransform = oText.GetComponent<RectTransform>();

@@ -5,68 +5,19 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Core;
+using UnityEngine.Networking;
 
 public class Main : MonoBehaviour
 {
-    private const int MAX_X_N = 3;
-    private const int MAX_Y_N = 7;
+    private const int MAX_X_N = 2;
+    private const int MAX_Y_N = 2;
 
     private TextManager m_oTextManager = new TextManager();
     private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
 
-    public string sPoetryText = @"
-        Прощай печаль - мать хмурых туч,
-        Прощай потертое забвение,
-        Прощай ненастье - грусти луч,
-        Прощай души моей смятение.
+    private List<string> m_aWords = new List<string>();
 
-        Спокойно мне и так легко.
-        Спокойно плещется мгновение,
-        Под звуки правды. Далеко,
-        Летит стрела, вне сил сомнения.
-
-        Фанфары счастья не гремят,
-        Не выжигает радость тени.
-        Спокойно мне. Огни горят,
-        Слегка касаясь поколения.
-
-        Видны потоки тишины.
-        Их всполохи в сердцах видны.
-    ";
-    private List<string> m_aWords = new List<string>()
-    {
-        "прощай", "печаль", "мать", "хмурых", "туч",
-        "прощай", "потертое", "забвение",
-        "прощай", "ненастье", "грусти луч",
-        "прощай", "души моей", "смятение",
-
-        "спокойно", "мне", "и так легко",
-        "спокойно", "плещется", "мгновение",
-        "под звуки", "правды", "далеко",
-        "летит", "стрела", "вне сил", "сомнения",
-
-        "фанфары", "счастья", "не гремят",
-        "не выжигает", "радость тени",
-        "спокойно", "мне", "огни", "горят",
-        "слегка", "касаясь", "поколения",
-
-        "видны", "потоки", "тишины",
-        "их всполохи", "в сердцах", "видны"
-    };
-
-    public Main()
-    {
-        /*char[] aText = sPoetryText.Where(Char.IsPunctuation).Distinct().ToArray();
-        List<string> aList = sPoetryText.Split().Select(x => x.Trim(aText)).ToList();
-        for (int i = 0; i < aList.Count; i++)
-        {
-            if (aList[i].Length == 0) continue;
-
-            m_aWords.Add(aList[i]);
-        }*/
-
-        m_aWords.Shuffle();
-    }
+    private bool m_bTextDownloaded = false;
 
     void Start()
     {
@@ -74,77 +25,108 @@ public class Main : MonoBehaviour
 
         m_oTextManager.Init();
 
+        StartCoroutine(DownloadPoem());
+
         StartCoroutine(BlinkLogic());
         // TestCoordsGrid();
+    }
 
-        /*int[] arr = new int[10];
-        int[] narr = new int[10];
+    IEnumerator DownloadPoem()
+    {
+        UnityWebRequest www = UnityWebRequest.Get("http://116.203.7.150:8000/index.php");
+        yield return www.SendWebRequest();
 
-        for (int i = 0; i < 100000; i++)
+        if (www.isNetworkError || www.isHttpError)
         {
-            double d = BoxMullerRange(0, 5);
-            if (d >= 0)
-            {
-                arr[(int)d]++;
-            }
-            else
-            {
-                narr[(int)Math.Abs(d)]++;
-            }
-        }*/
+            Debug.Log(www.error);
+        }
+        else
+        {
+            SplitText(www.downloadHandler.text);
+        }
+
+        m_bTextDownloaded = true;
     }
 
-    private double BoxMullerRange(double fMin, double fMax)
+    private void SplitText(string sText)
     {
-        double fMean = (fMin + fMax) / 2.0;
-        double fDev = (fMax - fMean) / 9.0;
+        m_aWords.Clear();
 
-        return BoxMuller(fMean, fDev);
-    }
+        char[] aText = sText.Where(Char.IsPunctuation).Distinct().ToArray();
+        List<string> aList = sText.Split().Select(x => x.Trim(aText)).ToList();
+        for (int i = 0; i < aList.Count; i++)
+        {
+            if (aList[i].Length == 0) continue;
 
-    private double BoxMuller(double fMean, double fDev)
-    {
-        double u1 = 1.0 - enRandom.GetF(); // uniform(0,1] random doubles
-        double u2 = 1.0 - enRandom.GetF();
-        double fRandStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
-        double randNormal = fMean + fDev * fRandStdNormal; //random normal(mean,stdDev^2)
+            if (aList[i].Length <= 3 && i + 1 < aList.Count && aList[i + 1].Length <= 8)
+            {
+                m_aWords.Add(aList[i] + " " + aList[i + 1]);
+                ++i;
+                continue;
+            }
+            if (aList[i].Length <= 8 && i + 1 < aList.Count && aList[i + 1].Length <= 3)
+            {
+                m_aWords.Add(aList[i] + " " + aList[i + 1]);
+                ++i;
+                continue;
+            }
 
-        return randNormal;
+            m_aWords.Add(aList[i]);
+        }
+
+        m_aWords.Shuffle();
     }
 
     private void TestCoordsGrid()
     {
+        PlaceFocusCircle();
+
         for (int x = 0; x < MAX_X_N; x++)
         {
             for (int y = 0; y < MAX_Y_N; y++)
             {
-                m_oTextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x + 1, y + 1)));
+                m_oTextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x, y)));
             }
         }
     }
 
     private IEnumerator BlinkLogic()
     {
-        for(int i = 0; i < m_aWords.Count; i++)
+        yield return new WaitUntil(() => m_bTextDownloaded);
+
+        PlaceFocusCircle();
+
+        while (true)
         {
-            Vector2Int p2 = GetRandomPosition();
-            Debug.Log(p2);
-            if (p2 == Vector2Int.zero)
+            for (int i = 0; i < m_aWords.Count; i++)
             {
-                // No more free slots. Wait
-                i--;
-            }
-            else
-            {
-                CreateBlinkingText(m_aWords[i], p2);
+                Vector2Int p2 = GetRandomPosition();
+                Debug.Log(p2);
+                if (p2 == new Vector2Int(-1, -1))
+                {
+                    // No more free slots. Wait
+                    i--;
+                }
+                else
+                {
+                    CreateBlinkingText(m_aWords[i], p2);
+                }
+
+                yield return new WaitForSeconds(Helpers.GetRandomLifeTime());
             }
 
-            yield return new WaitForSeconds(Helpers.GetRandomLifeTime());
+            yield return new WaitForSeconds(3.0f);
         }
+    }
 
-        yield return new WaitForSeconds(5.0f);
-
-        m_oTextManager.CreateText("ⰱⰾⰰⰳⱁⰴⰰⱃⱓ", new Vector3(0, 0, 0));
+    private void PlaceFocusCircle()
+    {
+        GameObject oFocusCircle = GameObject.Find("focus-circle");
+        RectTransform oRectTransform = oFocusCircle.GetComponent<RectTransform>();
+        oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        oRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        oRectTransform.sizeDelta = new Vector2(500, 100);
+        oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
     }
 
     private void CreateBlinkingText(string sText, Vector2Int p2iPosition)
@@ -161,35 +143,39 @@ public class Main : MonoBehaviour
 
     private Vector3 GetPositionByIndex(Vector2Int p2iIndex)
     {
-        Vector3 p3Position = new Vector3(40 + p2iIndex.x * 400, 50 + p2iIndex.y * 100, 0);
+        if(p2iIndex == new Vector2Int(0, 0))
+        {
+            return new Vector3(-220, -100, 0);
+        }
+        if (p2iIndex == new Vector2Int(0, 1))
+        {
+            return new Vector3(-220, 100, 0);
+        }
+        if (p2iIndex == new Vector2Int(1, 0))
+        {
+            return new Vector3(220, -100, 0);
+        }
+        if (p2iIndex == new Vector2Int(1, 1))
+        {
+            return new Vector3(220, 100, 0);
+        }
 
-        // 1
-        p3Position.x -= 640;
-        p3Position.y -= 400;
-
-        // 2
-        p3Position.x -= 250;
-        p3Position.y -= 50;
-
-        return p3Position;
+        return new Vector3Int();
     }
 
     private Vector2Int GetRandomPosition()
     {
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 10 * MAX_X_N * MAX_Y_N; i++)
         {
-            double fX = BoxMullerRange(0, MAX_X_N);
-            double fY = BoxMullerRange(0, MAX_Y_N);
-
-            int iRandX = (int)Math.Round(Math.Min(MAX_X_N, Math.Abs(fX))) + 1;
-            int iRandY = (int)Math.Round(Math.Min(MAX_Y_N, Math.Abs(fY))) + 1;
+            int iRandX = enRandom.Get(MAX_X_N);
+            int iRandY = enRandom.Get(MAX_Y_N);
 
             Vector2Int p2 = new Vector2Int(iRandX, iRandY);
             if (!m_aTextMatrix.ContainsKey(p2))
                 return p2;
         }
 
-        return Vector2Int.zero;
+        return new Vector2Int(-1, -1);
     }
 
     private IEnumerator BlinkText(GameObject goText, float fFrequency, float fLifeTime, Action fnCalback)
