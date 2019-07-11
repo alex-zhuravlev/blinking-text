@@ -12,6 +12,7 @@ public class Main : MonoBehaviour
     private const int MAX_X_N = 2;
     private const int MAX_Y_N = 2;
 
+    private GameObject m_oMenuPanel = null;
     private TextManager m_oTextManager = new TextManager();
     private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
 
@@ -19,19 +20,46 @@ public class Main : MonoBehaviour
 
     private bool m_bTextDownloaded = false;
 
-    void Start()
+    public void OnButtonMode1Click()
+    {
+
+    }
+
+    public void OnButtonMode2Click()
+    {
+
+    }
+
+    public void OnButtonMode3Click()
+    {
+
+    }
+
+    private void Start()
     {
         Application.targetFrameRate = 360;
+
+        m_oMenuPanel = GameObject.Find("MenuPanel");
+        m_oMenuPanel.SetActive(false);
 
         m_oTextManager.Init();
 
         StartCoroutine(DownloadPoem());
 
         StartCoroutine(BlinkLogic());
+
         // TestCoordsGrid();
     }
 
-    IEnumerator DownloadPoem()
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            m_oMenuPanel.SetActive(!m_oMenuPanel.activeInHierarchy);
+        }
+    }
+
+    private IEnumerator DownloadPoem()
     {
         UnityWebRequest www = UnityWebRequest.Get("http://116.203.7.150:8000/index.php");
         yield return www.SendWebRequest();
@@ -121,7 +149,7 @@ public class Main : MonoBehaviour
 
     private void PlaceFocusCircle()
     {
-        GameObject oFocusCircle = GameObject.Find("focus-circle");
+        GameObject oFocusCircle = GameObject.Find("FocusCircle");
         RectTransform oRectTransform = oFocusCircle.GetComponent<RectTransform>();
         oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         oRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
@@ -141,23 +169,35 @@ public class Main : MonoBehaviour
         }));
     }
 
+    private void RemoveAllTexts()
+    {
+        foreach(KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
+        {
+            GameObject.Destroy(record.Value);
+        }
+        m_aTextMatrix.Clear();
+    }
+
     private Vector3 GetPositionByIndex(Vector2Int p2iIndex)
     {
-        if(p2iIndex == new Vector2Int(0, 0))
+        float fW = 250.0f;
+        float fH = 120.0f;
+
+        if (p2iIndex == new Vector2Int(0, 0))
         {
-            return new Vector3(-220, -100, 0);
+            return new Vector3(-fW, -fH, 0);
         }
         if (p2iIndex == new Vector2Int(0, 1))
         {
-            return new Vector3(-220, 100, 0);
+            return new Vector3(-fW, fH, 0);
         }
         if (p2iIndex == new Vector2Int(1, 0))
         {
-            return new Vector3(220, -100, 0);
+            return new Vector3(fW, -fH, 0);
         }
         if (p2iIndex == new Vector2Int(1, 1))
         {
-            return new Vector3(220, 100, 0);
+            return new Vector3(fW, fH, 0);
         }
 
         return new Vector3Int();
