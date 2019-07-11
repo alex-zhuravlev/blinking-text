@@ -247,7 +247,10 @@
     <Compile Include="Assets\Scripts\Core\tmSingleton.cs" />
     <Compile Include="Assets\Scripts\Helpers.cs" />
     <Compile Include="Assets\Scripts\Main.cs" />
-    <Compile Include="Assets\Scripts\Mode2.cs" />
+    <Compile Include="Assets\Scripts\Modes\Mode.cs" />
+    <Compile Include="Assets\Scripts\Modes\Mode1.cs" />
+    <Compile Include="Assets\Scripts\Modes\Mode3.cs" />
+    <Compile Include="Assets\Scripts\Modes\Mode2.cs" />
     <Compile Include="Assets\Scripts\TextManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

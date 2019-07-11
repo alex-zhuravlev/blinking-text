@@ -9,216 +9,79 @@ using UnityEngine.Networking;
 
 public class Main : MonoBehaviour
 {
-    private const int MAX_X_N = 2;
-    private const int MAX_Y_N = 2;
+    public TextManager TextManager { get; private set; }
 
+    private GameObject m_oFocusCircle = null;
     private GameObject m_oMenuPanel = null;
-    private TextManager m_oTextManager = new TextManager();
-    private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
-
-    private List<string> m_aWords = new List<string>();
-
-    private bool m_bTextDownloaded = false;
+    private Mode m_oActiveMode = null;
 
     public void OnButtonMode1Click()
     {
+        if (m_oActiveMode != null)
+        {
+            m_oActiveMode.Stop();
+            m_oActiveMode = null;
+        }
 
+        m_oFocusCircle.SetActive(true);
+
+        m_oActiveMode = new Mode1(this);
+        m_oActiveMode.Start();
+
+        m_oMenuPanel.SetActive(false);
     }
 
     public void OnButtonMode2Click()
     {
+        if (m_oActiveMode != null)
+        {
+            m_oActiveMode.Stop();
+            m_oActiveMode = null;
+        }
 
+        m_oFocusCircle.SetActive(true);
+
+        m_oActiveMode = new Mode2(this);
+        m_oActiveMode.Start();
+
+        m_oMenuPanel.SetActive(false);
     }
 
     public void OnButtonMode3Click()
     {
+        if (m_oActiveMode != null)
+        {
+            m_oActiveMode.Stop();
+            m_oActiveMode = null;
+        }
 
-    }
+        m_oFocusCircle.SetActive(false);
 
-    private void Start()
-    {
-        Application.targetFrameRate = 360;
+        m_oActiveMode = new Mode3(this);
+        m_oActiveMode.Start();
 
-        m_oMenuPanel = GameObject.Find("MenuPanel");
         m_oMenuPanel.SetActive(false);
-
-        m_oTextManager.Init();
-
-        StartCoroutine(DownloadPoem());
-
-        StartCoroutine(BlinkLogic());
-
-        // TestCoordsGrid();
     }
 
-    private void Update()
+    public void OnSliderMode3Changed(Slider oSlider)
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if(m_oActiveMode is Mode3)
         {
-            m_oMenuPanel.SetActive(!m_oMenuPanel.activeInHierarchy);
+            Mode3 oMode3 = m_oActiveMode as Mode3;
+            oMode3.OnSliderChanged(oSlider.value);
         }
     }
 
-    private IEnumerator DownloadPoem()
+    public void OnToggleMode3Changed(Toggle oToggle)
     {
-        UnityWebRequest www = UnityWebRequest.Get("http://116.203.7.150:8000/index.php");
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
+        if (m_oActiveMode is Mode3)
         {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            SplitText(www.downloadHandler.text);
-        }
-
-        m_bTextDownloaded = true;
-    }
-
-    private void SplitText(string sText)
-    {
-        m_aWords.Clear();
-
-        char[] aText = sText.Where(Char.IsPunctuation).Distinct().ToArray();
-        List<string> aList = sText.Split().Select(x => x.Trim(aText)).ToList();
-        for (int i = 0; i < aList.Count; i++)
-        {
-            if (aList[i].Length == 0) continue;
-
-            if (aList[i].Length <= 3 && i + 1 < aList.Count && aList[i + 1].Length <= 8)
-            {
-                m_aWords.Add(aList[i] + " " + aList[i + 1]);
-                ++i;
-                continue;
-            }
-            if (aList[i].Length <= 8 && i + 1 < aList.Count && aList[i + 1].Length <= 3)
-            {
-                m_aWords.Add(aList[i] + " " + aList[i + 1]);
-                ++i;
-                continue;
-            }
-
-            m_aWords.Add(aList[i]);
-        }
-
-        m_aWords.Shuffle();
-    }
-
-    private void TestCoordsGrid()
-    {
-        PlaceFocusCircle();
-
-        for (int x = 0; x < MAX_X_N; x++)
-        {
-            for (int y = 0; y < MAX_Y_N; y++)
-            {
-                m_oTextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x, y)));
-            }
+            Mode3 oMode3 = m_oActiveMode as Mode3;
+            oMode3.OnToggleChanged(oToggle.isOn);
         }
     }
 
-    private IEnumerator BlinkLogic()
-    {
-        yield return new WaitUntil(() => m_bTextDownloaded);
-
-        PlaceFocusCircle();
-
-        while (true)
-        {
-            for (int i = 0; i < m_aWords.Count; i++)
-            {
-                Vector2Int p2 = GetRandomPosition();
-                Debug.Log(p2);
-                if (p2 == new Vector2Int(-1, -1))
-                {
-                    // No more free slots. Wait
-                    i--;
-                }
-                else
-                {
-                    CreateBlinkingText(m_aWords[i], p2);
-                }
-
-                yield return new WaitForSeconds(Helpers.GetRandomLifeTime());
-            }
-
-            yield return new WaitForSeconds(3.0f);
-        }
-    }
-
-    private void PlaceFocusCircle()
-    {
-        GameObject oFocusCircle = GameObject.Find("FocusCircle");
-        RectTransform oRectTransform = oFocusCircle.GetComponent<RectTransform>();
-        oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-        oRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-        oRectTransform.sizeDelta = new Vector2(500, 100);
-        oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
-    }
-
-    private void CreateBlinkingText(string sText, Vector2Int p2iPosition)
-    {
-        GameObject goText = m_oTextManager.CreateText(sText, GetPositionByIndex(p2iPosition));
-        m_aTextMatrix.Add(p2iPosition, goText);
-
-        StartCoroutine(BlinkText(goText, Helpers.GetRandomFrequency(), Helpers.GetRandomLifeTime(), () =>
-        {
-            m_aTextMatrix.Remove(p2iPosition);
-            GameObject.Destroy(goText);
-        }));
-    }
-
-    private void RemoveAllTexts()
-    {
-        foreach(KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
-        {
-            GameObject.Destroy(record.Value);
-        }
-        m_aTextMatrix.Clear();
-    }
-
-    private Vector3 GetPositionByIndex(Vector2Int p2iIndex)
-    {
-        float fW = 250.0f;
-        float fH = 120.0f;
-
-        if (p2iIndex == new Vector2Int(0, 0))
-        {
-            return new Vector3(-fW, -fH, 0);
-        }
-        if (p2iIndex == new Vector2Int(0, 1))
-        {
-            return new Vector3(-fW, fH, 0);
-        }
-        if (p2iIndex == new Vector2Int(1, 0))
-        {
-            return new Vector3(fW, -fH, 0);
-        }
-        if (p2iIndex == new Vector2Int(1, 1))
-        {
-            return new Vector3(fW, fH, 0);
-        }
-
-        return new Vector3Int();
-    }
-
-    private Vector2Int GetRandomPosition()
-    {
-        for (int i = 0; i < 10 * MAX_X_N * MAX_Y_N; i++)
-        {
-            int iRandX = enRandom.Get(MAX_X_N);
-            int iRandY = enRandom.Get(MAX_Y_N);
-
-            Vector2Int p2 = new Vector2Int(iRandX, iRandY);
-            if (!m_aTextMatrix.ContainsKey(p2))
-                return p2;
-        }
-
-        return new Vector2Int(-1, -1);
-    }
-
-    private IEnumerator BlinkText(GameObject goText, float fFrequency, float fLifeTime, Action fnCalback)
+    public IEnumerator BlinkText(GameObject goText, float fFrequency, float fLifeTime, Action fnCalback)
     {
         Text oText = goText.GetComponent<Text>();
         string sText = oText.text;
@@ -235,5 +98,36 @@ public class Main : MonoBehaviour
         }
 
         fnCalback();
+    }
+
+    private void Start()
+    {
+        Application.targetFrameRate = 360;
+
+        TextManager = new TextManager();
+        TextManager.Init();
+
+        m_oFocusCircle = GameObject.Find("FocusCircle");
+        PlaceFocusCircle();
+
+        m_oMenuPanel = GameObject.Find("MenuPanel");
+        m_oMenuPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            m_oMenuPanel.SetActive(!m_oMenuPanel.activeInHierarchy);
+        }
+    }
+
+    private void PlaceFocusCircle()
+    {
+        RectTransform oRectTransform = m_oFocusCircle.GetComponent<RectTransform>();
+        oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        oRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        oRectTransform.sizeDelta = new Vector2(500, 100);
+        oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
     }
 }

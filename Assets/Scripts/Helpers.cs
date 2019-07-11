@@ -6,7 +6,7 @@ using Core;
 
 public static class Helpers
 {
-    private static float[] m_aFrequencies = new float[]
+    public static readonly float[] Frequencies = new float[]
     {
         7.7777777f,
         77.777777f
@@ -15,7 +15,12 @@ public static class Helpers
     public static float GetRandomFrequency()
     {
         int iRandomIndex = enRandom.Get(2);
-        return m_aFrequencies[iRandomIndex];
+        return Frequencies[iRandomIndex];
+    }
+
+    public static float GetFrequency(int iIndex)
+    {
+        return Frequencies[iIndex];
     }
 
     public static float GetRandomLifeTime()
