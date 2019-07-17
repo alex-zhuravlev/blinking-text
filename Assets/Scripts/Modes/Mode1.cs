@@ -26,6 +26,8 @@ public class Mode1 : Mode
         
         RectTransform oRectTransform = m_oFocusCircleGO.GetComponent<RectTransform>();
         oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
+
+        m_bHighFrequency = Convert.ToBoolean(PlayerPrefs.GetInt("Mode1_bHighFrequency", 0));
     }
 
     protected override void Start()

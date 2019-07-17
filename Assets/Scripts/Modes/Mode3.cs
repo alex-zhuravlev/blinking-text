@@ -21,6 +21,9 @@ public class Mode3 : Mode
         base.Awake();
 
         m_oMenuMode3 = m_oMenuGO.GetComponent<MenuMode3>();
+
+        m_bHighFrequency = Convert.ToBoolean(PlayerPrefs.GetInt("Mode3_bHighFrequency", 0));
+        m_fTextSpeed = PlayerPrefs.GetFloat("Mode3_fTextSpeed", 0.5f);
     }
 
     protected override void Start()
@@ -52,9 +55,6 @@ public class Mode3 : Mode
 
     protected override void OnMenuClosed()
     {
-        m_bHighFrequency = m_oMenuMode3.ToggleFrequency;
-        m_fTextSpeed = m_oMenuMode3.SliderSpeed;
-
         SplitText(m_oMenuMode3.Text);
     }
 
