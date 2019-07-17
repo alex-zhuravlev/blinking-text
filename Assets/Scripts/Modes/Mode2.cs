@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,40 +11,82 @@ public class Mode2 : Mode
     private const int MAX_X_N = 2;
     private const int MAX_Y_N = 2;
 
+    [SerializeField]
+    protected GameObject FocusCirclePrefab = null;
+    private GameObject m_oFocusCircleGO = null;
+
     private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
     private List<string> m_aWords = new List<string>();
-    private bool m_bTextDownloaded = false;
 
-    private List<Coroutine> m_aActiveCoroutines = new List<Coroutine>();
+    private MenuMode2 m_oMenuMode2 = null;
 
-    public Mode2(Main o) : base(o)  { }
-
-    public override void Start()
+    protected override void Awake()
     {
-        Coroutine oCoroutine = m_oMainRef.StartCoroutine(BlinkLogic());
-        m_aActiveCoroutines.Add(oCoroutine);
+        base.Awake();
+
+        m_oMenuMode2 = m_oMenuGO.GetComponent<MenuMode2>();
+
+        m_oFocusCircleGO = GameObject.Instantiate<GameObject>(FocusCirclePrefab);
+        m_oFocusCircleGO.transform.SetParent(m_oCanvasGO.transform);
+
+        RectTransform oRectTransform = m_oFocusCircleGO.GetComponent<RectTransform>();
+        oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
     }
 
-    public override void Stop()
+    protected override void Start()
     {
-        foreach (Coroutine oCoroutine in m_aActiveCoroutines)
-            m_oMainRef.StopCoroutine(oCoroutine);
+        SplitText(m_oMenuMode2.Text);
+        StartCoroutine(BlinkLogic());
+    }
 
-        RemoveAllTexts();
+    protected override void Update()
+    {
+        base.Update();
+    }
+
+    protected override void Pause()
+    {
+        StopAllCoroutines();
+
+        foreach (KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
+        {
+            GameObject.Destroy(record.Value);
+        }
+        m_aTextMatrix.Clear();
+
+        m_oFocusCircleGO.SetActive(false);
+    }
+
+    protected override void Resume()
+    {
+        StartCoroutine(BlinkLogic());
+
+        m_oFocusCircleGO.SetActive(true);
+    }
+
+    protected override void OnMenuClosed()
+    {
+        SplitText(m_oMenuMode2.Text);
+    }
+
+    private void OnDestroy()
+    {
+        foreach (KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
+        {
+            GameObject.Destroy(record.Value);
+        }
+        m_aTextMatrix.Clear();
+
+        if (m_oFocusCircleGO != null) GameObject.Destroy(m_oFocusCircleGO);
     }
 
     private IEnumerator BlinkLogic()
     {
-        m_oMainRef.StartCoroutine(DownloadPoem());
-
-        yield return new WaitUntil(() => m_bTextDownloaded);
-
         while (true)
         {
             for (int i = 0; i < m_aWords.Count; i++)
             {
                 Vector2Int p2 = GetRandomPosition();
-                Debug.Log(p2);
                 if (p2 == new Vector2Int(-1, -1))
                 {
                     // No more free slots. Wait
@@ -61,23 +102,6 @@ public class Mode2 : Mode
 
             yield return new WaitForSeconds(3.0f);
         }
-    }
-
-    private IEnumerator DownloadPoem()
-    {
-        UnityWebRequest www = UnityWebRequest.Get("http://116.203.7.150:8000/index.php");
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            SplitText(www.downloadHandler.text);
-        }
-
-        m_bTextDownloaded = true;
     }
 
     private void SplitText(string sText)
@@ -109,37 +133,17 @@ public class Mode2 : Mode
         m_aWords.Shuffle();
     }
 
-    private void TestCoordsGrid()
-    {
-        for (int x = 0; x < MAX_X_N; x++)
-        {
-            for (int y = 0; y < MAX_Y_N; y++)
-            {
-                m_oMainRef.TextManager.CreateText("спокойно", GetPositionByIndex(new Vector2Int(x, y)));
-            }
-        }
-    }
 
     private void CreateBlinkingText(string sText, Vector2Int p2iPosition)
     {
-        GameObject goText = m_oMainRef.TextManager.CreateText(sText, GetPositionByIndex(p2iPosition));
+        GameObject goText = tmSingleton<CTextManager>.Instance.CreateText(sText, GetPositionByIndex(p2iPosition));
         m_aTextMatrix.Add(p2iPosition, goText);
 
-        Coroutine oCoroutine = m_oMainRef.StartCoroutine(m_oMainRef.BlinkText(goText, Helpers.GetRandomFrequency(), Helpers.GetRandomLifeTime(), () =>
+        StartCoroutine(BlinkText(goText, Helpers.GetRandomFrequency(), Helpers.GetRandomLifeTime(), () =>
         {
             m_aTextMatrix.Remove(p2iPosition);
             GameObject.Destroy(goText);
         }));
-        m_aActiveCoroutines.Add(oCoroutine);
-    }
-
-    private void RemoveAllTexts()
-    {
-        foreach (KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
-        {
-            GameObject.Destroy(record.Value);
-        }
-        m_aTextMatrix.Clear();
     }
 
     private Vector3 GetPositionByIndex(Vector2Int p2iIndex)

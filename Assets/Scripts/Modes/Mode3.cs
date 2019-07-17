@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,28 +10,61 @@ public class Mode3 : Mode
 {
     private GameObject m_oActiveText = null;
     private List<string> m_aWords = new List<string>();
-    private bool m_bTextDownloaded = false;
-
-    private List<Coroutine> m_aActiveCoroutines = new List<Coroutine>();
 
     private bool m_bHighFrequency = false;
     private float m_fTextSpeed = 0.5f;
 
-    public Mode3(Main o) : base(o)  { }
+    private MenuMode3 m_oMenuMode3 = null;
 
-    public override void Start()
+    protected override void Awake()
     {
-        Coroutine oCoroutine = m_oMainRef.StartCoroutine(BlinkLogic());
-        m_aActiveCoroutines.Add(oCoroutine);
+        base.Awake();
+
+        m_oMenuMode3 = m_oMenuGO.GetComponent<MenuMode3>();
     }
 
-    public override void Stop()
+    protected override void Start()
     {
-        foreach (Coroutine oCoroutine in m_aActiveCoroutines)
-            m_oMainRef.StopCoroutine(oCoroutine);
+        SplitText(m_oMenuMode3.Text);
+        StartCoroutine(BlinkLogic());
+    }
 
-        GameObject.Destroy(m_oActiveText);
-        m_oActiveText = null;
+    protected override void Update()
+    {
+        base.Update();
+    }
+
+    protected override void Pause()
+    {
+        StopAllCoroutines();
+
+        if (m_oActiveText != null)
+        {
+            GameObject.Destroy(m_oActiveText);
+            m_oActiveText = null;
+        }
+    }
+
+    protected override void Resume()
+    {
+        StartCoroutine(BlinkLogic());
+    }
+
+    protected override void OnMenuClosed()
+    {
+        m_bHighFrequency = m_oMenuMode3.ToggleFrequency;
+        m_fTextSpeed = m_oMenuMode3.SliderSpeed;
+
+        SplitText(m_oMenuMode3.Text);
+    }
+
+    private void OnDestroy()
+    {
+        if (m_oActiveText != null)
+        {
+            GameObject.Destroy(m_oActiveText);
+            m_oActiveText = null;
+        }
     }
 
     public void OnToggleChanged(bool bValue)
@@ -47,10 +79,6 @@ public class Mode3 : Mode
 
     private IEnumerator BlinkLogic()
     {
-        m_oMainRef.StartCoroutine(DownloadPoem());
-
-        yield return new WaitUntil(() => m_bTextDownloaded);
-
         while (true)
         {
             for (int i = 0; i < m_aWords.Count; i++)
@@ -62,23 +90,6 @@ public class Mode3 : Mode
 
             yield return new WaitForSeconds(3.0f);
         }
-    }
-
-    private IEnumerator DownloadPoem()
-    {
-        UnityWebRequest www = UnityWebRequest.Get("http://116.203.7.150:8000/index.php");
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            SplitText(www.downloadHandler.text);
-        }
-
-        m_bTextDownloaded = true;
     }
 
     private void SplitText(string sText)
@@ -110,13 +121,12 @@ public class Mode3 : Mode
 
     private void CreateBlinkingText(string sText)
     {
-        m_oActiveText = m_oMainRef.TextManager.CreateText(sText, new Vector3(0, 0, 0));
+        m_oActiveText = tmSingleton<CTextManager>.Instance.CreateText(sText, new Vector3(0, 0, 0));
 
-        Coroutine oCoroutine = m_oMainRef.StartCoroutine(m_oMainRef.BlinkText(m_oActiveText, Helpers.GetFrequency(Convert.ToInt32(m_bHighFrequency)), Math.Max(1.0f - m_fTextSpeed, 0.05f) * 3.0f, () =>
+        StartCoroutine(BlinkText(m_oActiveText, Helpers.GetFrequency(Convert.ToInt32(m_bHighFrequency)), Math.Max(1.0f - m_fTextSpeed, 0.05f) * 3.0f, () =>
         {
             GameObject.Destroy(m_oActiveText);
             m_oActiveText = null;
         }));
-        m_aActiveCoroutines.Add(oCoroutine);
     }
 }

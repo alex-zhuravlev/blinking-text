@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Core;
 
-public class TextManager
+public class CTextManager : ItmSingleton
 {
     private static int s_iTextCounter = 1;
     private GameObject m_goCanvas = null;
 
-    public void Init()
+    public void InitInstance()
     {
         m_goCanvas = GameObject.Find("Canvas");
     }
