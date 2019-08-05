@@ -54,3 +54,5 @@ MonoBehaviour:
   MenuPrefab: {fileID: 1352498755525286, guid: 3fc642a8b50efe04d8ecfec617f17af0, type: 2}
   FocusCirclePrefab: {fileID: 1086488562973610, guid: 683baa493e7df34448d49b942055150f,
     type: 2}
+  WebCamPrefab: {fileID: 1384788455401526, guid: 1475cacdece8b3f429e31d49a4c6a8f6,
+    type: 2}

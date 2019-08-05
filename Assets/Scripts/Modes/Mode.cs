@@ -43,7 +43,7 @@ public class Mode : MonoBehaviour
             //    Debug.Log("Hit " + result.gameObject.name);
             //}
 
-            if (aRaycastResults.Count == 0) // Clicked outside of any UI elements
+            if (aRaycastResults.Count == 0 || (aRaycastResults.Count == 1 && aRaycastResults[0].gameObject.name == "WebCam(Clone)")) // Clicked outside of any UI elements
             {
                 if(m_oMenuGO.activeInHierarchy)
                 {
