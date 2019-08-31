@@ -10,9 +10,6 @@ public class Mode1 : Mode
     [SerializeField]
     private GameObject FocusCirclePrefab = null;
     private GameObject m_oFocusCircleGO = null;
-    [SerializeField]
-    private GameObject WebCamPrefab = null;
-    private GameObject m_oWebCamGO = null;
 
     private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
     private bool m_bHighFrequency = false;
@@ -23,8 +20,6 @@ public class Mode1 : Mode
     protected override void Awake()
     {
         base.Awake();
-
-        Application.RequestUserAuthorization(UserAuthorization.WebCam);
 
         m_oMenuMode1 = m_oMenuGO.GetComponent<MenuMode1>();
 
@@ -50,11 +45,7 @@ public class Mode1 : Mode
 
     protected override void Pause()
     {
-        if (m_oWebCamGO != null)
-        {
-            GameObject.Destroy(m_oWebCamGO);
-            m_oWebCamGO = null;
-        }
+        tmSingleton<WebCam>.Instance.Stop();
 
         StopAllCoroutines();
 
@@ -95,37 +86,11 @@ public class Mode1 : Mode
     {
         if (m_bWebCamOn)
         {
-            m_oWebCamGO = GameObject.Instantiate<GameObject>(WebCamPrefab);
-            m_oWebCamGO.transform.SetParent(m_oCanvasGO.transform);
-
-            RectTransform oWebCamRT = m_oWebCamGO.GetComponent<RectTransform>();
-            oWebCamRT.sizeDelta = new Vector2(Screen.width, Screen.height);
-            //oWebCamRT.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
-            oWebCamRT.localPosition = Vector3.zero;
-
-            string sDeviceName = String.Empty;
-            foreach (WebCamDevice oWebCamDevice in WebCamTexture.devices)
-            {
-                if (oWebCamDevice.isFrontFacing)
-                {
-                    sDeviceName = oWebCamDevice.name;
-                    break;
-                }
-            }
-            WebCamTexture oWebCamTexture = new WebCamTexture(sDeviceName);
-
-            RawImage oRawImage = m_oWebCamGO.GetComponent<RawImage>();
-            oRawImage.texture = oWebCamTexture;
-            oRawImage.material.mainTexture = oWebCamTexture;
-            oWebCamTexture.Play();
+            tmSingleton<WebCam>.Instance.Play();
         }
         else
         {
-            if (m_oWebCamGO != null)
-            {
-                GameObject.Destroy(m_oWebCamGO);
-                m_oWebCamGO = null;
-            }
+            tmSingleton<WebCam>.Instance.Stop();
         }
 
         int iIndex = Convert.ToInt32(m_bHighFrequency);

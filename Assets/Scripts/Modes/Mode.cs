@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Core;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -43,7 +45,7 @@ public class Mode : MonoBehaviour
             //    Debug.Log("Hit " + result.gameObject.name);
             //}
 
-            if (aRaycastResults.Count == 0 || (aRaycastResults.Count == 1 && aRaycastResults[0].gameObject.name == "WebCam(Clone)")) // Clicked outside of any UI elements
+            if (aRaycastResults.Count == 0 || (aRaycastResults.Count == 1 && aRaycastResults[0].gameObject == tmSingleton<WebCam>.Instance.WebCamGO)) // Clicked outside of any UI elements
             {
                 if(m_oMenuGO.activeInHierarchy)
                 {
