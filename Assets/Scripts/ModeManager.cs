@@ -46,7 +46,7 @@ public class CModeManager : ItmSingleton
 
     public void ShowMenuMain()
     {
-        //m_oMenuMainGO.SetActive(true);
+        m_oMenuMainGO.SetActive(true);
     }
 
     public void HideMenuMain()

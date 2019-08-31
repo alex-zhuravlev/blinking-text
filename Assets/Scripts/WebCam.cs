@@ -29,14 +29,7 @@ public class WebCam : ItmSingleton
         WebCamGO = GameObject.Instantiate<GameObject>(oWebCamPrefab);
         WebCamGO.transform.SetParent(oCanvasGO.transform);
 
-        // Set fullscreen
-        RectTransform oWebCamRT = WebCamGO.GetComponent<RectTransform>();
-        oWebCamRT.rotation = Quaternion.AngleAxis(90, Vector3.forward);
-        oWebCamRT.sizeDelta = new Vector2(Screen.width, Screen.height);
-        //oWebCamRT.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
-        oWebCamRT.localPosition = Vector3.zero;
-
-        // Create font-facing device
+        // Get font-facing device
         string sDeviceName = String.Empty;
         foreach (WebCamDevice oWebCamDevice in WebCamTexture.devices)
         {
@@ -46,7 +39,17 @@ public class WebCam : ItmSingleton
                 break;
             }
         }
+
+        if (sDeviceName == String.Empty) return;
+
         m_oWebCamTexture = new WebCamTexture(sDeviceName);
+
+        // Set fullscreen
+        RectTransform oWebCamRT = WebCamGO.GetComponent<RectTransform>();
+        oWebCamRT.sizeDelta = new Vector2(Screen.width, Screen.height);
+        oWebCamRT.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+        //oWebCamRT.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
+        oWebCamRT.localPosition = Vector3.zero;
 
         RawImage oRawImage = WebCamGO.GetComponent<RawImage>();
         oRawImage.texture = m_oWebCamTexture;
@@ -57,17 +60,21 @@ public class WebCam : ItmSingleton
 
     public void Tick()
     {
-           
+
     }
 
     public void Play()
     {
+        if (m_oWebCamTexture == null) return;
+
         WebCamGO.SetActive(true);
         m_oWebCamTexture.Play();
     }
 
     public void Stop()
     {
+        if (m_oWebCamTexture == null) return;
+
         m_oWebCamTexture.Stop();
         WebCamGO.SetActive(false);
     }
