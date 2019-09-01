@@ -29,6 +29,12 @@ public class WebCam : ItmSingleton
         WebCamGO = GameObject.Instantiate<GameObject>(oWebCamPrefab);
         WebCamGO.transform.SetParent(oCanvasGO.transform);
 
+        // Set fullscreen & rotate
+        RectTransform oWebCamRT = WebCamGO.GetComponent<RectTransform>();
+        oWebCamRT.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+        oWebCamRT.sizeDelta = new Vector2(Screen.height, Screen.width);
+        oWebCamRT.localPosition = Vector3.zero;
+
         // Get font-facing device
         string sDeviceName = String.Empty;
         foreach (WebCamDevice oWebCamDevice in WebCamTexture.devices)
@@ -44,13 +50,7 @@ public class WebCam : ItmSingleton
 
         m_oWebCamTexture = new WebCamTexture(sDeviceName);
 
-        // Set fullscreen
-        RectTransform oWebCamRT = WebCamGO.GetComponent<RectTransform>();
-        oWebCamRT.sizeDelta = new Vector2(Screen.width, Screen.height);
-        oWebCamRT.rotation = Quaternion.AngleAxis(90, Vector3.forward);
-        //oWebCamRT.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
-        oWebCamRT.localPosition = Vector3.zero;
-
+        // Set up webcam texture
         RawImage oRawImage = WebCamGO.GetComponent<RawImage>();
         oRawImage.texture = m_oWebCamTexture;
         oRawImage.material.mainTexture = m_oWebCamTexture;
