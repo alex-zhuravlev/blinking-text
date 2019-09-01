@@ -45,7 +45,8 @@ public class Mode : MonoBehaviour
             //    Debug.Log("Hit " + result.gameObject.name);
             //}
 
-            if (aRaycastResults.Count == 0 || (aRaycastResults.Count == 1 && aRaycastResults[0].gameObject == tmSingleton<WebCam>.Instance.WebCamGO)) // Clicked outside of any UI elements
+            // Clicked outside of any UI elements
+            if (aRaycastResults.Count == 0/* || (aRaycastResults.Count == 1 && aRaycastResults[0].gameObject == )*/)
             {
                 if(m_oMenuGO.activeInHierarchy)
                 {
@@ -68,20 +69,20 @@ public class Mode : MonoBehaviour
 
     protected virtual void OnMenuClosed() { }
 
-    public IEnumerator BlinkText(GameObject goText, float fFrequency, float fLifeTime, Action fnCalback)
+    public IEnumerator BlinkText(GameObject goText, float fFrequency, float fTextDisplayTime, Action fnCalback)
     {
         Text oText = goText.GetComponent<Text>();
         string sText = oText.text;
         float fDelay = (1.0f / fFrequency) / 2.0f;
 
         bool bShow = true;
-        while (fLifeTime >= 0)
+        while (fTextDisplayTime >= 0)
         {
             oText.text = (bShow) ? sText : String.Empty;
             bShow = !bShow;
 
             yield return new WaitForSeconds(fDelay);
-            fLifeTime -= fDelay;
+            fTextDisplayTime -= fDelay;
         }
 
         fnCalback();

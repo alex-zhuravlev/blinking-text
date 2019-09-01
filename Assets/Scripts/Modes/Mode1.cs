@@ -13,7 +13,6 @@ public class Mode1 : Mode
 
     private Dictionary<Vector2Int, GameObject> m_aTextMatrix = new Dictionary<Vector2Int, GameObject>();
     private bool m_bHighFrequency = false;
-    private bool m_bWebCamOn = false;
 
     private MenuMode1 m_oMenuMode1 = null;
 
@@ -30,7 +29,6 @@ public class Mode1 : Mode
         oRectTransform.localPosition = new Vector3(-Screen.width * 0.5f, -Screen.height * 0.5f, 0);
 
         m_bHighFrequency = Convert.ToBoolean(PlayerPrefs.GetInt("Mode1_bHighFrequency", 0));
-        m_bWebCamOn = Convert.ToBoolean(PlayerPrefs.GetInt("Mode1_bWebCamOn", 0));
     }
 
     protected override void Start()
@@ -45,8 +43,6 @@ public class Mode1 : Mode
 
     protected override void Pause()
     {
-        tmSingleton<WebCam>.Instance.Stop();
-
         StopAllCoroutines();
 
         foreach (KeyValuePair<Vector2Int, GameObject> record in m_aTextMatrix)
@@ -68,7 +64,6 @@ public class Mode1 : Mode
     protected override void OnMenuClosed()
     {
         m_bHighFrequency = m_oMenuMode1.ToggleFrequency;
-        m_bWebCamOn = m_oMenuMode1.ToggleWebCam;
     }
 
     private void OnDestroy()
@@ -84,15 +79,6 @@ public class Mode1 : Mode
 
     private IEnumerator BlinkLogic()
     {
-        if (m_bWebCamOn)
-        {
-            tmSingleton<WebCam>.Instance.Play();
-        }
-        else
-        {
-            tmSingleton<WebCam>.Instance.Stop();
-        }
-
         int iIndex = Convert.ToInt32(m_bHighFrequency);
 
         CreateBlinkingText("Я", new Vector2Int(0, 0), Helpers.Frequencies[iIndex]);

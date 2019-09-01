@@ -109,7 +109,7 @@ public class Mode2 : Mode
         m_aWords.Clear();
 
         char[] aText = sText.Where(Char.IsPunctuation).Distinct().ToArray();
-        List<string> aList = sText.Split().Select(x => x.Trim(aText)).ToList();
+        List<string> aList = sText.ToLower().Split().Select(x => x.Trim(aText)).ToList();
         for (int i = 0; i < aList.Count; i++)
         {
             if (aList[i].Length == 0) continue;

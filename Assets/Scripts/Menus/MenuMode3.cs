@@ -40,7 +40,7 @@ public class MenuMode3 : MenuMode
         m_oTextEditorGO.transform.SetParent(GameObject.Find("Canvas").transform);
 
         RectTransform oRectTransform = m_oTextEditorGO.GetComponent<RectTransform>();
-        oRectTransform.sizeDelta = new Vector2(Screen.width * 0.9f, Screen.height * 0.9f);
+        oRectTransform.sizeDelta = new Vector2(Screen.width * 0.65f, Screen.height * 0.8f);
         oRectTransform.localPosition = Vector3.zero;
 
         m_oInputField = m_oTextEditorGO.GetComponent<InputField>();

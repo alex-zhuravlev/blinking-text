@@ -13,14 +13,12 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectGenerator>VSTU</UnityProjectGenerator>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>Android:13</UnityBuildTarget>
     <UnityVersion>2017.4.4f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -246,6 +244,7 @@
     <Compile Include="Assets\Scripts\Core\enRandom.cs" />
     <Compile Include="Assets\Scripts\Core\tmSingleton.cs" />
     <Compile Include="Assets\Scripts\Helpers.cs" />
+    <Compile Include="Assets\Scripts\LinkPrefab.cs" />
     <Compile Include="Assets\Scripts\Main.cs" />
     <Compile Include="Assets\Scripts\Menus\MenuMain.cs" />
     <Compile Include="Assets\Scripts\Menus\MenuMode.cs" />
@@ -257,10 +256,10 @@
     <Compile Include="Assets\Scripts\Modes\Mode1.cs" />
     <Compile Include="Assets\Scripts\Modes\Mode2.cs" />
     <Compile Include="Assets\Scripts\Modes\Mode3.cs" />
+    <Compile Include="Assets\Scripts\SetFullscreen.cs" />
+    <Compile Include="Assets\Scripts\SetSliderValue.cs" />
     <Compile Include="Assets\Scripts\SetToggleValue.cs" />
     <Compile Include="Assets\Scripts\TextManager.cs" />
-    <Compile Include="Assets\Scripts\WebCam.cs" />
-    <Compile Include="Assets\SetSliderValue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

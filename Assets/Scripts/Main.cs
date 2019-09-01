@@ -24,6 +24,6 @@ public class Main : MonoBehaviour
 
     private void Update()
     {
-        tmSingleton<WebCam>.Instance.Tick();
+        
     }
 }

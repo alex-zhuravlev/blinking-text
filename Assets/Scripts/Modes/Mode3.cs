@@ -56,6 +56,7 @@ public class Mode3 : Mode
     protected override void OnMenuClosed()
     {
         SplitText(m_oMenuMode3.Text);
+        m_fTextSpeed = m_oMenuMode3.SliderSpeed;
     }
 
     private void OnDestroy()
@@ -97,7 +98,7 @@ public class Mode3 : Mode
         m_aWords.Clear();
 
         char[] aText = sText.Where(Char.IsPunctuation).Distinct().ToArray();
-        List<string> aList = sText.Split().Select(x => x.Trim(aText)).ToList();
+        List<string> aList = sText.ToLower().Split().Select(x => x.Trim(aText)).ToList();
         for (int i = 0; i < aList.Count; i++)
         {
             if (aList[i].Length == 0) continue;
@@ -123,7 +124,23 @@ public class Mode3 : Mode
     {
         m_oActiveText = tmSingleton<CTextManager>.Instance.CreateText(sText, new Vector3(0, 0, 0));
 
-        StartCoroutine(BlinkText(m_oActiveText, Helpers.GetFrequency(Convert.ToInt32(m_bHighFrequency)), Math.Max(1.0f - m_fTextSpeed, 0.05f) * 3.0f, () =>
+        const float fValueMin = 10.0f;
+        const float fValueMiddle = 60.0f;
+        const float fValueMax = 500.0f;
+
+        int iWordsPerMinute = (int)fValueMiddle;
+        if (m_fTextSpeed < 0.5f)
+        {
+            iWordsPerMinute = (int)(fValueMin + (fValueMiddle - fValueMin) * (m_fTextSpeed / 0.5f));
+        }
+        else if (m_fTextSpeed > 0.5f)
+        {
+            iWordsPerMinute = (int)(fValueMiddle + (fValueMax - fValueMiddle) * (m_fTextSpeed / 0.5f - 1.0f));
+        }
+
+        float fTextDisplayTime = (1.0f / (float)iWordsPerMinute) * 60.0f;
+
+        StartCoroutine(BlinkText(m_oActiveText, Helpers.GetFrequency(Convert.ToInt32(m_bHighFrequency)), fTextDisplayTime, () =>
         {
             GameObject.Destroy(m_oActiveText);
             m_oActiveText = null;
