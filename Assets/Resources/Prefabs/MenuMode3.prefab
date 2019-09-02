@@ -588,8 +588,8 @@ MonoBehaviour:
   Name: Mode3_bHighFrequency
   Default: 0
   LabelGO: {fileID: 1127005045906558}
-  TextOn: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430: 77 \u0413\u0446"
-  TextOff: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430: 7 \u0413\u0446"
+  TextOn: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430: \u0432\u044B\u0441\u043E\u043A\u0430\u044F"
+  TextOff: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430: \u043D\u0438\u0437\u043A\u0430\u044F"
 --- !u!114 &114382797391487118
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -717,7 +717,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430"
+  m_Text: "\u0427\u0430\u0441\u0442\u043E\u0442\u0430: \u0432\u044B\u0441\u043E\u043A\u0430\u044F"
 --- !u!114 &114758442211089138
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1021,7 +1021,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 114, y: 121}
+  m_AnchoredPosition: {x: 125, y: 107}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224207337119528984
@@ -1232,8 +1232,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 121}
-  m_SizeDelta: {x: 188.1, y: 30}
+  m_AnchoredPosition: {x: -41.9, y: 107}
+  m_SizeDelta: {x: 233.9, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224920062606391452
 RectTransform:
