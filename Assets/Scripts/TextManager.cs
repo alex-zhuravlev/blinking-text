@@ -29,6 +29,7 @@ public class CTextManager : ItmSingleton
         oText.color = new Color(255.0f, 215.0f, 0.0f);
         oText.fontSize = 72;
         oText.alignment = TextAnchor.MiddleCenter;
+        oText.horizontalOverflow = HorizontalWrapMode.Overflow;
 
         RectTransform oRectTransform = oText.GetComponent<RectTransform>();
         oRectTransform.anchorMin = new Vector2(0.5f, 0.5f);

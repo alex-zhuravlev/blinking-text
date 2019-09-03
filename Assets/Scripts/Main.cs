@@ -13,6 +13,7 @@ public class Main : MonoBehaviour
     private void Awake()
     {
         Application.targetFrameRate = 360;
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
         tmSingleton<CModeManager>.Instance.ShowMenuMain();
     }
